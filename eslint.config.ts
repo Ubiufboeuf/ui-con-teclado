@@ -21,8 +21,7 @@ export default defineConfig([
       '@stylistic/eol-last': ['error', 'always'],
       '@typescript-eslint/consistent-type-imports': 'error',
       'space-before-function-paren': ['error', 'always'],
-      '@stylistic/arrow-parens': ['error', 'always'],
-      'no-unused-vars': ['warn', 'always']
+      '@stylistic/arrow-parens': ['error', 'always']
     }
   }
 ])
