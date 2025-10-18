@@ -8,7 +8,7 @@ export class Box {
     styles: {
       gap: '0px',
       rounded: `${Math.random() * 32}px`,
-      size: { height: '48px', width: '48px' }
+      size: { height: '64px', width: '64px' }
     }
   }
   content?: string = ''
