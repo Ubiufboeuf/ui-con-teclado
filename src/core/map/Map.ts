@@ -2,7 +2,7 @@ import type { Point, Size } from '@/env'
 import type { Cursor } from '../cursor/Cursor'
 import type { MapConfig, MapElement } from '@/types/Map'
 import { type Box } from '../box/Box'
-import { TestBox } from '../box/TextBox'
+import { TestBox } from '../box/TestBox'
 
 export class Map {
   size: Size = { width: 4, height: 4 }

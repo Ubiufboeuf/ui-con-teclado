@@ -7,9 +7,9 @@ export class Box {
   element: BoxElement = {
     styles: {
       gap: '0px',
-      position: { x: '0px', y: '0px' },
-      rounded: '0px',
-      size: { height: '0px', width: '0px' }
+      position: { x: '48px', y: '48px' },
+      rounded: '8px',
+      size: { height: '48px', width: '48px' }
     }
   }
   content?: string = ''
@@ -23,5 +23,12 @@ export class Box {
     this.$parent = config.$parent
     this.position = config.position
     this.content = config.content
+
+    const { styles } = this.element
+    if (styles) {      
+      $box.style.height = styles.size?.height || $box.style.height
+      $box.style.width = styles.size?.width || $box.style.width
+      $box.style.borderRadius = styles.rounded || $box.style.borderRadius
+    }
   }
 }

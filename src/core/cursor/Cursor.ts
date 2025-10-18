@@ -40,6 +40,7 @@ export class Cursor {
     this.$cursor = $cursor
     
     const box = map.findBox(this.position)
+    console.log('cursor', box)
     if (box)
       this.setCursorStyles(box)
   }
@@ -48,17 +49,23 @@ export class Cursor {
     const { $box, element: { styles: boxStyles } } = box
     if (!$box || !boxStyles) return
 
-    const { width, height, x, y } = $box.getBoundingClientRect()
+    // const { width, height, x, y } = boxStyles
+    const rect = $box.getBoundingClientRect()
+    const height = boxStyles?.size?.height || `${rect.height}px`
+    const width = boxStyles?.size?.width || `${rect.width}px`
+    const x = boxStyles?.position?.x || `${rect.x}px`
+    const y = boxStyles?.position?.y || `${rect.y}px`
 
-    this.element.styles.position = { x: `${x}px`, y: `${y}px` }
-    this.element.styles.size = { width: `${width}px`, height: `${height}px` }
+    this.element.styles.position = { x, y }
+    this.element.styles.size = { width, height }
     this.element.styles.rounded = boxStyles.rounded
     
     const { $cursor, element: { styles } } = this
+    console.log('cursor', $cursor, {styles, boxStyles})
     if (!$cursor || !styles) return
     
-    $cursor.style.width = `${styles.size?.width}px`
-    $cursor.style.height = `${styles.size?.height}px`
-    $cursor.style.borderRadius = `${styles.rounded}px`
+    $cursor.style.width = styles.size?.width || $cursor.style.width
+    $cursor.style.height = styles.size?.height || $cursor.style.height
+    $cursor.style.borderRadius = styles.rounded || $cursor.style.borderRadius
   }
 }
