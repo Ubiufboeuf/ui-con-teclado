@@ -2,6 +2,7 @@ import type { Point, Size } from '../../env'
 import type { MapConfig, MapElement } from '../../types/Map'
 import { type Box } from '../box/Box'
 import { TestBox } from '../box/TestBox'
+import type { Cursor } from '../cursor/Cursor'
 
 export class Map {
   size: Size = { width: 4, height: 4 }
@@ -126,14 +127,13 @@ export class Map {
     return style
   }
 
-  findBox (position: Point) {
+  findBox (position: Point, cursor: Cursor) {
     const { $map, structure } = this
     if (!$map) return
 
     const box = structure[position.y]?.[position.x]
-    // const $box = $map.children[position.y].children[position.x]
-    // const 
-    // return box
+    if (cursor) cursor.box = box
+    
     return box
   }
 }

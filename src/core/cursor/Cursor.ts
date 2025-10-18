@@ -7,6 +7,7 @@ import type { Map } from '../map/Map'
 export class Cursor {
   $cursor: HTMLElement | null = null
   map: Map | null = null
+  box: Box | null = null
   size: Point = { x: 1, y: 1 }
   position: Point = { x: 0, y: 0 }
   last_saved_position: Point = { x: 0, y: 0 }
@@ -23,7 +24,7 @@ export class Cursor {
     const { position } = this
     position.y--
     
-    const newBox = map.findBox(position)
+    const newBox = map.findBox(position, this)
     if (!newBox) {
       position.y++
       return
@@ -36,7 +37,7 @@ export class Cursor {
     const { position } = this
     position.x--
     
-    const newBox = map.findBox(position)
+    const newBox = map.findBox(position, this)
     if (!newBox) {
       position.x++
       return
@@ -49,7 +50,7 @@ export class Cursor {
     const { position } = this
     position.y++
     
-    const newBox = map.findBox(position)
+    const newBox = map.findBox(position, this)
     if (!newBox) {
       position.y--
       return
@@ -62,7 +63,7 @@ export class Cursor {
     const { position } = this
     position.x++
     
-    const newBox = map.findBox(position)
+    const newBox = map.findBox(position, this)
     if (!newBox) {
       position.x--
       return
@@ -92,7 +93,7 @@ export class Cursor {
     this.$cursor = $cursor
     this.map = map
     
-    const box = map.findBox(this.position)
+    const box = map.findBox(this.position, this)
     if (box)
       this.setCursorStyles(box)
   }

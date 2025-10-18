@@ -27,8 +27,10 @@ body {
 #screen {
   height: 500px;
   width: 800px;
-  background: black;
+  max-height: 100%;
+  max-width: 100%;
 
+  background: black;
   border-radius: 16px;
 }
 
