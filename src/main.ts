@@ -1,14 +1,18 @@
-import { Cursor } from './cursor'
-import { Map } from './map'
+import { Cursor } from './core/cursor/Cursor'
+import { Map } from './core/map/Map'
+import { Screen } from './screen/Screen'
 
 const map = new Map({
   size: [4, 3],
-  styles: {
-    // gap: ['80px', '120px']
-    gap: '8px'
+  element: {
+    styles: {
+      gap: '8px'
+    }
   }
 })
 
-const cursor = new Cursor()
+Screen.renderMap(map)
+
+const cursor = new Cursor(map)
 
 map.renderCursor(cursor)

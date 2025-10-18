@@ -49,7 +49,6 @@ body {
 
 .row {
   display: flex;
-  gap: 4px;
 }
 
 .box {
