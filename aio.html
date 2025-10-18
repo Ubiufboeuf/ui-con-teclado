@@ -1,0 +1,387 @@
+
+<!DOCTYPE html>
+<html lang='es'>
+<head>
+  <meta charset='UTF-8'>
+  <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+  <title>Interfaz con teclado</title>
+  <style>
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+    }
+
+    body {
+      height: 100vh;
+      width: 100vw;
+      margin: 0;
+      background: #1a1a1a;
+      color: white;
+      font-family: system-ui;
+      display: flex;
+      flex-direction: column;
+      /* justify-content: center;
+      align-items: center; */
+      gap: 8px;
+    }
+
+    div {
+      display: flex;
+      gap: 8px;
+    }
+
+    button {
+      height: 48px;
+      width: 48px;
+      min-height: 48px;
+      min-width: 48px;
+      font-size: 12px;
+      border: 0;
+      background-color: #343434;
+      color: white;
+      cursor: pointer;
+
+      /* &.active { border: 2px solid royalblue; } */
+      /* &:focus-within { border: 2px solid lightslategrey; } */
+      &:focus-visible {
+        outline: 0;
+      }
+
+      &:active {
+        background-color: #444;
+        transition: background-color .1s ease;
+      }
+    }
+
+    #selectBox {
+      --padding: 0px;
+      --border: 4px;
+      position: absolute;
+      border: var(--border) solid dodgerblue;
+      padding: var(--padding);
+      height: var(--height);
+      width: var(--width);
+      left: var(--left);
+      top: var(--top);
+      border-radius: var(--radius);
+      transition-property: left, top, height, width, border-radius;
+      transition-timing-function: ease;
+      transition-duration: 150ms;
+    }
+
+    #map_indicator {
+      height: fit-content;
+      width: fit-content;
+      position: absolute;
+      right: 0;
+      bottom: 0;
+      overflow: hidden;
+      font-family: 'Cascadia Code';
+    }
+  </style>
+  <script type="module">
+    // const rows = document.querySelectorAll("div")
+    // const buttons = document.querySelectorAll("button")
+    const map_indicator = document.querySelector("#map_indicator")
+
+    const $selectBox = document.createElement("div")
+    $selectBox.id = 'selectBox'
+    document.body.append($selectBox)
+
+    const rows = []
+    const buttons = []
+    const map = []
+    const ROWS_LENGTH = 16
+    const CELLS_LENGTH = 14
+    const SHOW_MATRIX = false
+    const OVERFLOW_X_MOVE = true
+    const OVERFLOW_Y_MOVE = true
+    let X = 0
+    let Y = 0
+
+    const keys = {
+      right: 'd',
+      left: 'a',
+      up: 'w',
+      down: 's'
+      // right: 'arrowright',
+      // left: 'arrowleft',
+      // up: 'arrowup',
+      // down: 'arrowdown'
+      // los valores del eje y están invertidos por cómo funciona el dom
+    }
+
+    const keys_pressed = {
+      [keys.right]: false,
+      [keys.left]: false,
+      [keys.up]: false,
+      [keys.down]: false,
+    }
+
+    for (let y = 0; y < ROWS_LENGTH; y++) {
+      let arr = []
+      const div = document.createElement("div")
+      const rnd = Math.floor(Math.random(0, 1) * CELLS_LENGTH + 1)
+      for (let x = 0; x < rnd; x++) {
+        arr.push('.')
+        const button = document.createElement("button")
+        button.textContent = `x:${x}, y:${y}`
+        button.setAttribute('x', x)
+        button.setAttribute('y', y)
+        button.style.borderRadius = `${getRandomRadius()}%`
+        div.append(button)
+        buttons.push(button)
+      }
+      map.push(arr)
+      rows.push(div)
+      document.body.append(div)
+    }
+
+    function getRandomRadius() {
+      return Math.floor(Math.random(0, 1) * 50)
+    }
+
+    map[0][0] = 'x'
+
+    // console.log(map, rows, buttons)
+
+    // const map_data = [
+    //   [{ x: 0, y: 0 }, { x: 1, y: 0 }, { x: 2, y: 0 }],
+    //   [{ x: 0, y: 1 }, { x: 1, y: 1 }, { x: 2, y: 1 }],
+    //   [{ x: 0, y: 2 }, { x: 1, y: 2 }, { x: 2, y: 2 }],
+    // ]
+    // ↑ no funciona porque se usa mucho el objeto map
+
+    const map_data = map.map((row, row_idx) => {
+      return row.map((cell, cell_idx) => {
+        return { x: cell_idx, y: row_idx }
+      })
+    })
+
+    const selectBox = { // _sb_ functions
+      active_dom: undefined,
+      position: { x: 0, y: 0 },
+      floating_position: { x: undefined, y: 0 },
+      size: { h: 0, w: 0 },
+    }
+
+    showMatrix(map)
+
+    function setInitialSelectBoxData() {
+      // _sb_position, _sb_active_dom
+      map.map((row, row_idx) => {
+        row.map((cell, cell_idx) => {
+          if (cell === 'x') {
+            const { x, y } = map_data[row_idx][cell_idx]
+            selectBox.position = { x, y }
+            const active_dom = _sb_getSelectedElement({ x, y })
+            if (active_dom) {
+              // console.log(active_dom.offsetHeight)
+              selectBox.active_dom = active_dom
+              _sb_setNewElement(active_dom)
+            }
+          }
+        })
+      })      
+    }
+    setInitialSelectBoxData()
+
+    document.addEventListener("keydown", (e) => {
+      const key = e.key.toLowerCase()
+      if (key === ' ') return console.clear()
+      if (!Object.values(keys).includes(key)) return
+
+      if (key === keys.up) keys_pressed[keys.up] = true
+      if (key === keys.right) keys_pressed[keys.right] = true
+      if (key === keys.down) keys_pressed[keys.down] = true
+      if (key === keys.left) keys_pressed[keys.left] = true
+      
+      // console.log('down', { X, Y }, keys_pressed)
+      handleKeys(key)
+    })
+
+    document.addEventListener("keyup", (e) => {
+      const key = e.key.toLowerCase()
+      if (key === ' ') return console.clear()
+      if (!Object.values(keys).includes(key)) return
+
+      if (selectBox.active_dom) {
+        selectBox.active_dom.focus()
+      }
+      
+      if (key === keys.up) keys_pressed[keys.up] = false
+      if (key === keys.right) keys_pressed[keys.right] = false
+      if (key === keys.down) keys_pressed[keys.down] = false
+      if (key === keys.left) keys_pressed[keys.left] = false
+      
+      // console.log('up', { X, Y }, keys_pressed)
+      handleKeysPressed(key)
+    })
+
+    function handleKeysPressed (key) {
+      if (key === keys.left && keys_pressed[keys.right]) X = 1
+      else if (key === keys.right && keys_pressed[keys.left]) X = -1
+      else if (key === keys.right || key === keys.left) X = 0
+      
+      if (key === keys.down && keys_pressed[keys.up]) Y = 1
+      else if (key === keys.up && keys_pressed[keys.down]) Y = -1
+      else if (key === keys.up || key === keys.down) Y = 0
+    }
+
+    function _sb_getSelectedElement({ x, y }) {
+      return [...buttons].find(btn => (btn.getAttribute("x") == x && btn.getAttribute("y") == y))
+    }
+
+    function _sb_findNewElement({ current_x = undefined, current_y = undefined, new_x = undefined, new_y = undefined }) {
+      // c: current | f: floating |  : wanted
+      // eg: cx = 0, fx: 0, x: 1
+      
+      let x = +current_x + +new_x
+      let y = +current_y + +new_y
+
+      // if (y > 50) { y = 10; current_y = y - +new_y }
+      // if (y < 10) { y = 50; current_y = y - +new_y }
+      // if (x > 50) { x = 10; current_x = x - +new_x }
+      // if (x < 10) { x = 50; current_x = x - +new_x }
+
+      new_x != 0 && (selectBox.floating_position.x = undefined)
+      if (
+        isNaN(x) || isNaN(y)
+        || !map
+      ) return null
+      
+      if (!map?.[y] && (map.length === y || y === -1)) {
+        x = (y === -1) ? 0 : map[+current_y].length - 1
+        return _sb_getSelectedElement({ x, y: +current_y })
+      }
+      
+      if (x == map[y].length && !map[+current_y][x]) {
+        x = 0
+        y = +current_y + 1
+        return _sb_getSelectedElement({ x, y })
+      } else if (x == -1 && !map[+current_y][x]) {
+        x = map[y - 1]?.length - 1
+        y = +current_y - 1
+        return _sb_getSelectedElement({ x, y })
+      }
+
+      const fx = selectBox.floating_position.x
+      
+      if (map[y][x] && fx != null && map[y][fx]) {
+        selectBox.floating_position.x = undefined
+        x = fx
+      } else if (
+        (map[y][x] && fx != null && !map[y][fx]) ||
+        (!map[y][x])
+      ) {
+        if (!map[y][x] && !fx) {
+          selectBox.floating_position.x = +current_x
+        }
+        for (let i = map[y].length - 1; i >= 0; i--) {
+          if (map[y][i]) {
+            x = i
+            break
+          }
+        }
+      } else if (map[y][x] && fx == null) {
+        x = +current_x + +new_x
+      }
+
+      return _sb_getSelectedElement({ x, y })
+    }
+
+    function _sb_clearOldElements() {
+      buttons.forEach((btn) => {
+        btn.blur()
+        btn.classList.remove('active')
+      })
+    }
+
+    function _sb_updateAttributes() {
+      const { active_dom: element } = selectBox
+      $selectBox.setAttribute("style", `
+        --height: ${element.offsetHeight}px;
+        --width: ${element.offsetWidth}px;
+        --left: ${element.offsetLeft}px;
+        --top: ${element.offsetTop}px;
+        --radius: ${element.style.borderRadius};
+      `)
+    }
+
+    function _sb_setNewElement(element) {
+      _sb_clearOldElements()
+      selectBox.active_dom = element
+      _sb_updateAttributes()
+      const x = element.getAttribute("x")
+      const y = element.getAttribute("y")
+      selectBox.position = { x, y }
+      updateMap(x, y)
+      element.focus()
+      element.classList.add("active") 
+    }
+
+    function updateMap(x, y) {
+      map.forEach((row, row_idx) => {
+        row.forEach((cell, cell_idx) => {
+          if (cell == 'x') {
+            map[row_idx][cell_idx] = '.'
+          }
+        })
+      })
+      map[y][x] = 'x'
+    }
+
+    function _sb_moveCamera() {
+      const cx = $selectBox.clientWidth
+      const ox = $selectBox.offsetLeft
+      const sx = $selectBox.scrollLeft
+
+      console.log({ cx, ox, sx }, window.screenLeft)
+    }
+
+    function handleKeys(key) {
+      // if (!keys[key]) return
+      const { active_dom, position } = selectBox
+      if (key === keys.right) X = 1
+      if (key === keys.left) X = -1
+      if (key === keys.down) Y = 1
+      if (key === keys.up) Y = -1
+      // const key_pos = keys[key]
+      const newElement = _sb_findNewElement({
+        current_x: position.x,
+        current_y: position.y,
+        new_x: X,
+        new_y: Y
+      })
+      if (!newElement) return
+      // console.log(newElement)
+      _sb_setNewElement(newElement)
+      _sb_moveCamera()
+      showMatrix(map)
+    }
+
+    function showMatrix(__matrix) {
+      if (!selectBox || !SHOW_MATRIX) return
+      // const { x, y } = selectBox.position
+      const matrix = __matrix
+      map_indicator.innerHTML = ''
+      for (let i = 0; i < matrix.length; i++) {
+        const row = matrix[i]
+        for (let ii = 0; ii < row.length; ii++) {
+          const cell = row[ii]
+          map_indicator.innerHTML += ` <span>'${cell}'</span> `
+        }
+        map_indicator.innerHTML += '<br>'
+      }
+    }
+
+    window.addEventListener("resize", () => {
+      _sb_updateAttributes(selectBox.active_dom)
+    })
+  </script>
+</head>
+<body>
+  <p id='map_indicator'></p>
+</body>
+</html>
