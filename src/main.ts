@@ -4,7 +4,13 @@ import { Map } from './core/map/Map'
 import { Screen } from './screen/Screen'
 
 const map = new Map({
-  size: [4, 3],
+  // size: [4, 3],
+  structure: [
+    ['x:🥐 y:99', 'x'],
+    [''],
+    [],
+    ['2']
+  ],
   element: {
     styles: {
       gap: '8px'

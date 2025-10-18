@@ -36,7 +36,6 @@ export class Box {
   refreshElementStyles (config?: Partial<BoxConfig>) {
     const { $box } = this
     const { x, y } = $box.getBoundingClientRect()
-    console.log(config?.element?.styles.position, x, y)
     this.element.styles.position = config?.element?.styles.position || { x: `${x}px`, y: `${y}px` }
   }
 }

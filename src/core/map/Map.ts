@@ -31,27 +31,38 @@ export class Map {
 
     this.setMapStyles()
 
-    this.createBoxes()
+    this.createBoxes(config)
     this.renderBoxes()
   }
 
-  private createBoxes () {
-    const { size: { height, width } } = this
+  private createBoxes (config: MapConfig) {
+    let { size: { height, width } } = this
+    height = config.structure ? config.structure.length || 1 : height
 
-    const structure: (Box | TestBox)[][] = []    
-
+    const structure: (Box | TestBox)[][] = []
     for (let y = 0; y < height; y++) {
       const row: (Box | TestBox)[] = []
+      console.log({ length: config.structure?.[y]?.length })
+      width = config.structure ? config.structure[y]?.length || 1 : width
 
       for (let x = 0; x < width; x++) {
-        const box = new TestBox({ $parent: null, position: { x, y }, type: 'test-box', content: `x:${x} y:${y}` })
+        let content = `x:${x} y:${y}`
+        const cell = config.structure?.[y]?.[x]
+        if (typeof cell === 'string') content = cell
+        
+        const box = new TestBox({
+          $parent: null,
+          position: { x, y },
+          type: 'test-box',
+          content
+        })
         // console.log(box)
         row.push(box)
       }
       
       structure.push(row)
     }
-
+ 
     this.structure = structure
   }
 
