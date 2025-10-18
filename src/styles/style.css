@@ -43,6 +43,8 @@ body {
   border-radius: var(--rounded);
 
   border: 2px solid dodgerblue;
+  transition-property: left, top, border-radius;
+  transition-duration: 200ms;
 }
 
 #map {

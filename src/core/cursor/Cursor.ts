@@ -1,4 +1,4 @@
-import type { Point, Styles } from '../../env'
+import type { Point } from '../../env'
 import { Screen } from '../../screen/Screen'
 import type { CursorController, CursorElement } from '../../types/Cursor'
 import type { Box } from '../box/Box'
@@ -16,69 +16,21 @@ export class Cursor {
       position: { x: '0px', y: '0px' },
       rounded: '0px',
       size: { height: '40px', width: '40px' }
+    },
+    animations: {
+      tryMoveUp: this.tryMoveUp.bind(this),
+      tryMoveLeft: this.tryMoveLeft.bind(this),
+      tryMoveDown: this.tryMoveDown.bind(this),
+      tryMoveRight: this.tryMoveRight.bind(this)
     }
   }
-  styles?: Styles
-
-  moveUp = (map: Map) => {
-    const { position } = this
-    position.y--
-    
-    const newBox = map.findBox(position, this)
-    if (!newBox) {
-      position.y++
-      return
-    }
-    
-    this.setCursorStyles(newBox)
-  }
-
-  moveLeft = (map: Map) => {
-    const { position } = this
-    position.x--
-    
-    const newBox = map.findBox(position, this)
-    if (!newBox) {
-      position.x++
-      return
-    }
-    
-    this.setCursorStyles(newBox)
-  }
-
-  moveDown = (map: Map) => {
-    const { position } = this
-    position.y++
-    
-    const newBox = map.findBox(position, this)
-    if (!newBox) {
-      position.y--
-      return
-    }
-    
-    this.setCursorStyles(newBox)
-  }
-
-  moveRight = (map: Map) => {
-    const { position } = this
-    position.x++
-    
-    const newBox = map.findBox(position, this)
-    if (!newBox) {
-      position.x--
-      return
-    }
-    
-    this.setCursorStyles(newBox)
-  }
-  
   controller: CursorController = {
     validKeys: ['w', 'a', 's', 'd'],
     actions: {
-      w: this.moveUp,
-      a: this.moveLeft,
-      s: this.moveDown,
-      d: this.moveRight
+      w: this.moveUp.bind(this),
+      a: this.moveLeft.bind(this),
+      s: this.moveDown.bind(this),
+      d: this.moveRight.bind(this)
     }
   }
 
@@ -125,4 +77,113 @@ export class Cursor {
     $cursor.style.top = styles.position?.y || $cursor.style.top
     $cursor.style.borderRadius = styles.rounded || $cursor.style.borderRadius
   }
+
+  //#region - Actions -
+  moveUp (map: Map) {
+    const { position } = this
+    position.y--
+    
+    const newBox = map.findBox(position, this)
+    if (!newBox) {
+      position.y++
+      this.element.animations.tryMoveUp?.()
+      return
+    }
+    
+    this.setCursorStyles(newBox)
+  }
+
+  moveLeft (map: Map) {
+    const { position } = this
+    position.x--
+    
+    const newBox = map.findBox(position, this)
+    if (!newBox) {
+      position.x++
+      this.element.animations.tryMoveLeft?.()
+      return
+    }
+    
+    this.setCursorStyles(newBox)
+  }
+
+  moveDown (map: Map) {
+    const { position } = this
+    position.y++
+    
+    const newBox = map.findBox(position, this)
+    if (!newBox) {
+      position.y--
+      this.element.animations.tryMoveDown?.()
+      return
+    }
+    
+    this.setCursorStyles(newBox)
+  }
+
+  moveRight (map: Map) {
+    const { position } = this
+    position.x++
+    
+    const newBox = map.findBox(position, this)
+    if (!newBox) {
+      position.x--
+      this.element.animations.tryMoveRight?.()
+      return
+    }
+    
+    this.setCursorStyles(newBox)
+  }
+  //#endregion - Actions -
+
+  //#region - Animations -
+  tryMoveUp () {
+    // console.log('tryMoveUp')
+    const { $cursor } = this
+    $cursor?.animate([
+      { transform: 'translateY(-8px)', offset: 0.4 },
+      { transform: 'translateY(0)' }
+    ], {
+      duration: 200,
+      easing: 'linear',
+      fill: 'both'
+    })
+  }
+  tryMoveLeft () {
+    // console.log('tryMoveUp')
+    const { $cursor } = this
+    $cursor?.animate([
+      { transform: 'translateX(-8px)', offset: 0.4 },
+      { transform: 'translateX(0)' }
+    ], {
+      duration: 200,
+      easing: 'linear',
+      fill: 'both'
+    })
+  }
+  tryMoveDown () {
+    // console.log('tryMoveUp')
+    const { $cursor } = this
+    $cursor?.animate([
+      { transform: 'translateY(+8px)', offset: 0.4 },
+      { transform: 'translateY(0)' }
+    ], {
+      duration: 200,
+      easing: 'linear',
+      fill: 'both'
+    })
+  }
+  tryMoveRight () {
+    // console.log('tryMoveUp')
+    const { $cursor } = this
+    $cursor?.animate([
+      { transform: 'translateX(+8px)', offset: 0.4 },
+      { transform: 'translateX(0)' }
+    ], {
+      duration: 200,
+      easing: 'linear',
+      fill: 'both'
+    })
+  }
+  //#endregion - Animations -
 }
