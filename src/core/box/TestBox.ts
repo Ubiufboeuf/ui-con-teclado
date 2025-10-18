@@ -1,4 +1,4 @@
-import type { TestBoxConfig } from '@/types/TestBox'
+import type { TestBoxConfig } from '../../types/TestBox'
 import { Box } from './Box'
 
 export class TestBox extends Box {

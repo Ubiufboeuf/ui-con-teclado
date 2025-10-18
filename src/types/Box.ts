@@ -1,4 +1,4 @@
-import type { Point, Styles } from '@/env'
+import type { Point, Styles } from '../env'
 
 export type BoxType = 'core' | 'test-box'
 export type BoxContent_Test = string
@@ -9,6 +9,7 @@ export type BoxConfig = {
   $parent: HTMLElement | null
   position: Point
   content?: BoxContent
+  element?: BoxElement
 }
 
 export type BoxElement = {

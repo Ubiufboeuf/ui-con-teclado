@@ -1,10 +1,12 @@
-import type { KeyboardKey, Point, Styles } from '@/env'
-import type { CursorElement } from '@/types/Cursor'
+import type { Point, Styles } from '../../env'
+import { Screen } from '../../screen/Screen'
+import type { CursorController, CursorElement } from '../../types/Cursor'
 import type { Box } from '../box/Box'
 import type { Map } from '../map/Map'
 
 export class Cursor {
   $cursor: HTMLElement | null = null
+  map: Map | null = null
   size: Point = { x: 1, y: 1 }
   position: Point = { x: 0, y: 0 }
   last_saved_position: Point = { x: 0, y: 0 }
@@ -16,16 +18,66 @@ export class Cursor {
     }
   }
   styles?: Styles
-  controller: {
-    validKeys: KeyboardKey[]
-    actions: Partial<Record<KeyboardKey, () => void>>
-  } = {
+
+  moveUp = (map: Map) => {
+    const { position } = this
+    position.y--
+    
+    const newBox = map.findBox(position)
+    if (!newBox) {
+      position.y++
+      return
+    }
+    
+    this.setCursorStyles(newBox)
+  }
+
+  moveLeft = (map: Map) => {
+    const { position } = this
+    position.x--
+    
+    const newBox = map.findBox(position)
+    if (!newBox) {
+      position.x++
+      return
+    }
+    
+    this.setCursorStyles(newBox)
+  }
+
+  moveDown = (map: Map) => {
+    const { position } = this
+    position.y++
+    
+    const newBox = map.findBox(position)
+    if (!newBox) {
+      position.y--
+      return
+    }
+    
+    this.setCursorStyles(newBox)
+  }
+
+  moveRight = (map: Map) => {
+    const { position } = this
+    position.x++
+    
+    const newBox = map.findBox(position)
+    if (!newBox) {
+      position.x--
+      return
+    }
+    
+    this.setCursorStyles(newBox)
+  }
+  
+  controller: CursorController = {
     validKeys: ['w', 'a', 's', 'd'],
     actions: {
-      w: () => {},
-      a: () => {},
-      s: () => {},
-      d: () => {}
+      w: this.moveUp,
+      a: this.moveLeft,
+      s: this.moveDown,
+      d: this.moveRight
     }
   }
 
@@ -38,34 +90,38 @@ export class Cursor {
     }
 
     this.$cursor = $cursor
+    this.map = map
     
     const box = map.findBox(this.position)
-    console.log('cursor', box)
     if (box)
       this.setCursorStyles(box)
   }
 
-  setCursorStyles (box: Box) {
+  setCursorStyles (box: Box) {    
     const { $box, element: { styles: boxStyles } } = box
-    if (!$box || !boxStyles) return
+    const { $screen } = Screen
+    if (!$box || !boxStyles || !$screen) return
 
     // const { width, height, x, y } = boxStyles
-    const rect = $box.getBoundingClientRect()
-    const height = boxStyles?.size?.height || `${rect.height}px`
-    const width = boxStyles?.size?.width || `${rect.width}px`
-    const x = boxStyles?.position?.x || `${rect.x}px`
-    const y = boxStyles?.position?.y || `${rect.y}px`
+    const boxRect = $box.getBoundingClientRect()
 
-    this.element.styles.position = { x, y }
+    const height = boxStyles?.size?.height || `${boxRect.height}px`
+    const width = boxStyles?.size?.width || `${boxRect.width}px`
+    const x: number = boxRect.left
+    const y: number = boxRect.top
+
+    this.element.styles.position = { x: `${x}px`, y: `${y}px` }
     this.element.styles.size = { width, height }
     this.element.styles.rounded = boxStyles.rounded
     
     const { $cursor, element: { styles } } = this
-    console.log('cursor', $cursor, {styles, boxStyles})
+
     if (!$cursor || !styles) return
-    
+
     $cursor.style.width = styles.size?.width || $cursor.style.width
     $cursor.style.height = styles.size?.height || $cursor.style.height
+    $cursor.style.left = styles.position?.x || $cursor.style.left
+    $cursor.style.top = styles.position?.y || $cursor.style.top
     $cursor.style.borderRadius = styles.rounded || $cursor.style.borderRadius
   }
 }

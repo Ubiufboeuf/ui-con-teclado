@@ -1,4 +1,5 @@
 import { Cursor } from './core/cursor/Cursor'
+import { handleKeyDown } from './core/handlers/keyDown'
 import { Map } from './core/map/Map'
 import { Screen } from './screen/Screen'
 
@@ -15,4 +16,6 @@ Screen.renderMap(map)
 
 const cursor = new Cursor(map)
 
-map.renderCursor(cursor)
+Screen.renderCursor(cursor)
+
+window.addEventListener('keydown', handleKeyDown(cursor, map))

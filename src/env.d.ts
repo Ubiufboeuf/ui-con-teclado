@@ -15,6 +15,7 @@ export type Styles = {
   position: { x: CSSUnit, y: CSSUnit }
   rounded: CSSUnit
   size: { width: CSSUnit, height: CSSUnit }
+  padding: CSSUnit
 }
 
 export type KeyboardKey = ' '

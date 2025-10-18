@@ -1,6 +1,5 @@
-import type { Point, Size } from '@/env'
-import type { Cursor } from '../cursor/Cursor'
-import type { MapConfig, MapElement } from '@/types/Map'
+import type { Point, Size } from '../../env'
+import type { MapConfig, MapElement } from '../../types/Map'
 import { type Box } from '../box/Box'
 import { TestBox } from '../box/TestBox'
 
@@ -46,6 +45,7 @@ export class Map {
 
       for (let x = 0; x < width; x++) {
         const box = new TestBox({ $parent: null, position: { x, y }, type: 'test-box', content: `x:${x} y:${y}` })
+        // console.log(box)
         row.push(box)
       }
       
@@ -119,21 +119,10 @@ export class Map {
     const { $map, structure } = this
     if (!$map) return
 
-    const box = structure[position.y][position.x]
+    const box = structure[position.y]?.[position.x]
     // const $box = $map.children[position.y].children[position.x]
     // const 
     // return box
     return box
-  }
-
-  renderCursor (cursor: Cursor) {
-    const { $map } = this
-    const { $cursor } = cursor
-
-    console.log($map, $cursor)
-
-    if (!$map || !$cursor) return
-
-    $map.prepend($cursor)
   }
 }

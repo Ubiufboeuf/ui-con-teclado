@@ -1,4 +1,4 @@
-import type { Styles } from '@/env'
+import type { Styles } from '../env'
 
 export type MapConfig = {
   size?: [number, number]
