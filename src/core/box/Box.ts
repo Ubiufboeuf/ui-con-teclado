@@ -7,7 +7,7 @@ export class Box {
   element: BoxElement = {
     styles: {
       gap: '0px',
-      rounded: '8px',
+      rounded: `${Math.random() * 32}px`,
       size: { height: '48px', width: '48px' }
     }
   }
